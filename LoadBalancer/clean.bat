@@ -8,5 +8,6 @@ if exist *.exe del /Q *.exe
 if exist *.ilk del /Q *.ilk
 if exist *.pdb del /Q *.pdb
 if exist *.log del /Q *.log
+if exist simulation.txt del /Q simulation.txt
 
 echo Clean complete!

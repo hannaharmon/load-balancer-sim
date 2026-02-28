@@ -68,7 +68,7 @@ endif
 
 # Clean everything including logs
 clean-all: clean
-	$(RM) *.log
+	$(RM) *.log *.txt
 
 # Run all test configurations
 test-all: $(TARGET)

@@ -49,6 +49,7 @@ cmake_install.cmake
 
 # Log files
 *.log
+simulation.txt
 logs/
 
 # Documentation

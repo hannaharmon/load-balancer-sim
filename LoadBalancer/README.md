@@ -105,7 +105,7 @@ LoadBalancer/
 - Yellow: Status updates
 - Magenta: Final summary
 
-**Log File (`simulation.log`):**
+**Log File (`simulation.txt`):**
 - Timestamps
 - Scaling events (cycle, server count, queue size)
 - Summary (total cycles, servers, queue, blocked requests)

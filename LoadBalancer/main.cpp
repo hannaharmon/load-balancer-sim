@@ -81,7 +81,7 @@ int main(int argc, char const *argv[])
     SimulationConfig config = loadConfigFromFile(configFilePath);
     
     // Create logger
-    Logger logger("simulation.log", false); // Don't duplicate console output
+    Logger logger("simulation.txt", false); // Don't duplicate console output
     
     ConsoleColor::setColor(ConsoleColor::CYAN);
     std::cout << "========================================" << std::endl;
@@ -175,7 +175,7 @@ int main(int argc, char const *argv[])
                       lb.getScalingEvents(), lb.getBlockedRequests());
     
     ConsoleColor::setColor(ConsoleColor::CYAN);
-    std::cout << "Log file written to: simulation.log" << std::endl;
+    std::cout << "Log file written to: simulation.txt" << std::endl;
     ConsoleColor::reset();
 
     return 0;

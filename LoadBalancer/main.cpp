@@ -7,6 +7,125 @@
  * and runs the load balancer with dynamic server scaling.
  */
 
+/**
+ * @mainpage Load Balancer Simulation - Project 3
+ * 
+ * @section intro_sec Introduction
+ * 
+ * This project implements a dynamic load balancer simulation that manages web server
+ * resources based on incoming request traffic. The system automatically scales server
+ * capacity up or down to maintain optimal performance while preventing resource waste.
+ * 
+ * @section features_sec Key Features
+ * 
+ * - **Dynamic Server Scaling**: Automatically adjusts server count based on queue load
+ *   - Scales UP when queue > 80 requests per server
+ *   - Scales DOWN when queue < 50 requests per server
+ *   - Configurable cooldown period between scaling events
+ * 
+ * - **Request Queue Management**: FIFO queue system for incoming client requests
+ * 
+ * - **Firewall Protection**: IP-based blocking with CIDR range support
+ *   - Exact IP matching (e.g., 192.168.1.1)
+ *   - CIDR notation support (e.g., 10.0.0.0/8)
+ *   - DDoS attack prevention
+ * 
+ * - **Random Request Generation**: Simulates realistic traffic patterns
+ *   - Random IP addresses (0.0.0.0 - 255.255.255.255)
+ *   - Random processing times within configurable ranges
+ *   - Seeded RNG for reproducible test scenarios
+ * 
+ * - **Colored Console Output**: Visual feedback for system events
+ *   - Green: Server added (scaling up)
+ *   - Red: Server removed (scaling down)
+ *   - Cyan: Configuration and informational messages
+ *   - Yellow: Status updates
+ *   - Magenta: Final summary
+ * 
+ * - **Comprehensive Logging**: Timestamped event tracking and statistics
+ * 
+ * @section arch_sec Architecture
+ * 
+ * The simulation consists of several key components:
+ * 
+ * - **LoadBalancer**: Manages request queue and server pool, handles dynamic scaling
+ * - **Webserver**: Processes individual requests over multiple clock cycles
+ * - **Request**: Data structure containing IP addresses, processing time, and job type
+ * - **RequestGenerator**: Creates random requests with configurable parameters
+ * - **Firewall**: Filters requests based on IP blocking rules
+ * - **Logger**: Tracks events and generates summary reports
+ * - **Colors**: Cross-platform colored console output
+ * 
+ * @section config_sec Configuration
+ * 
+ * The system is fully configurable via text files using key=value format:
+ * 
+ * @code
+ * initialServers=10              # Starting server count
+ * maxServers=50                  # Maximum server capacity
+ * simulationLength=10000         # Clock cycles to simulate
+ * seed=42                        # RNG seed for reproducibility
+ * requestDelayMin=2              # Min cycles between new requests
+ * requestDelayMax=6              # Max cycles between new requests
+ * requestProcessingMin=10        # Min processing time
+ * requestProcessingMax=100       # Max processing time
+ * queueLowThreshold=50           # Scale down threshold (requests/server)
+ * queueHighThreshold=80          # Scale up threshold (requests/server)
+ * serverAdjustmentDelay=10       # Cooldown between scaling events
+ * blockedIPs=10.0.0.0/8          # Firewall rules (optional)
+ * @endcode
+ * 
+ * @section usage_sec Usage
+ * 
+ * Build and run the simulation:
+ * 
+ * @code{.sh}
+ * # Windows
+ * .\\build.bat
+ * .\\loadbalancer.exe config.txt
+ * 
+ * # Linux/Mac
+ * make
+ * ./loadbalancer config.txt
+ * @endcode
+ * 
+ * Multiple configuration files are provided in the configs/ directory for
+ * testing different scenarios (minimal load, high load, DDoS attacks, etc.).
+ * 
+ * @section impl_sec Implementation Details
+ * 
+ * **Time Representation**: All time values use integer clock cycles rather than
+ * floating-point seconds, ensuring precise discrete-event simulation.
+ * 
+ * **Scaling Algorithm**: The load balancer checks queue size every clock cycle.
+ * When thresholds are exceeded, it waits for the cooldown period before making
+ * another adjustment to prevent thrashing.
+ * 
+ * **Request Processing**: Each web server can handle one request at a time.
+ * Servers tick down remaining time each cycle. When a request completes, the
+ * server becomes available for the next queued request.
+ * 
+ * @section output_sec Output
+ * 
+ * The simulation generates:
+ * - **Console Output**: Real-time colored status updates
+ * - **Log File (simulation.txt)**: Complete event history with timestamps
+ *   - Configuration summary
+ *   - Starting/ending queue sizes
+ *   - All scaling events
+ *   - Final statistics (queue size, server count, scaling events, blocked requests)
+ * 
+ * @section classes_sec Main Classes
+ * 
+ * See the individual class documentation for detailed information:
+ * - LoadBalancer - Core load balancing logic
+ * - Webserver - Request processing
+ * - RequestGenerator - Random request creation
+ * - Firewall - IP filtering
+ * - Logger - Event logging
+ * - ConsoleColor - Colored output
+ */
+
 #include <iostream>
 #include <fstream>
 #include <sstream>

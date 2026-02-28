@@ -1,3 +1,9 @@
+/**
+ * @file RequestGenerator.cpp
+ * @brief Implementation of RequestGenerator class
+ * @date February 2026
+ */
+
 #include "RequestGenerator.h"
 #include <random>
 #include <sstream>

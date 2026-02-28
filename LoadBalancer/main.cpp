@@ -1,3 +1,12 @@
+/**
+ * @file main.cpp
+ * @brief Main entry point for Load Balancer simulation
+ * @date February 2026
+ * 
+ * Loads configuration from file, initializes simulation components,
+ * and runs the load balancer with dynamic server scaling.
+ */
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -5,8 +14,14 @@
 #include <random>
 #include "LoadBalancer.h"
 #include "RequestGenerator.h"
+#include "Logger.h"
+#include "Colors.h"
 
-// Function to load configuration from file
+/**
+ * @brief Load simulation configuration from a file
+ * @param filePath Path to the configuration file
+ * @return SimulationConfig struct with loaded parameters
+ */
 SimulationConfig loadConfigFromFile(const std::string& filePath) {
     // Initialize with default values
     SimulationConfig config = {0};
@@ -65,9 +80,17 @@ int main(int argc, char const *argv[])
     std::string configFilePath = argv[1];
     SimulationConfig config = loadConfigFromFile(configFilePath);
     
+    // Create logger
+    Logger logger("simulation.log", false); // Don't duplicate console output
+    
+    ConsoleColor::setColor(ConsoleColor::CYAN);
     std::cout << "========================================" << std::endl;
     std::cout << "Configuration loaded from: " << configFilePath << std::endl;
     std::cout << "========================================" << std::endl;
+    ConsoleColor::reset();
+    
+    logger.log("Configuration loaded from: " + configFilePath);
+    
     std::cout << "Simulation Parameters:" << std::endl;
     std::cout << "  Initial Servers: " << config.initialServers << std::endl;
     std::cout << "  Max Servers: " << config.maxServers << std::endl;
@@ -77,20 +100,17 @@ int main(int argc, char const *argv[])
     std::cout << "  Seed: " << config.seed << std::endl;
     std::cout << "  Request Delay: " << config.requestDelayMin << "-" << config.requestDelayMax << " cycles" << std::endl;
     std::cout << "  Processing Time: " << config.requestProcessingMin << "-" << config.requestProcessingMax << " cycles" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Server Scaling:" << std::endl;
-    std::cout << "  Queue Low Threshold: " << config.queueLowThreshold << " * num_servers" << std::endl;
-    std::cout << "  Queue High Threshold: " << config.queueHighThreshold << " * num_servers" << std::endl;
-    std::cout << "  Adjustment Delay: " << config.serverAdjustmentDelay << " cycles" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Firewall:" << std::endl;
-    std::cout << "  Blocked IPs: " << (config.blockedIPs.empty() ? "(none)" : config.blockedIPs) << std::endl;
+    ConsoleColor::setColor(ConsoleColor::CYAN);
     std::cout << "========================================" << std::endl;
+    ConsoleColor::reset();
     std::cout << std::endl;
+    
+    ConsoleColor::setColor(ConsoleColor::YELLOW);
     std::cout << "Starting simulation..." << std::endl;
+    ConsoleColor::reset();
 
     // create load balancer with config and number of servers
-    LoadBalancer lb = LoadBalancer(config, config.initialServers);
+    LoadBalancer lb = LoadBalancer(config, config.initialServers, &logger);
 
     // set up request generator
     RequestGenerator rg = RequestGenerator(config);
@@ -99,19 +119,26 @@ int main(int argc, char const *argv[])
     std::mt19937 rng(config.seed);
     std::uniform_int_distribution<int> delayDist(config.requestDelayMin, config.requestDelayMax);
 
-    // generate a full request queue (initial webservers * 100)
+    // generate a full request queue (about webservers * 100)
     std::cout << "Generating initial request queue (" << config.initialServers * 100 << " requests)..." << std::endl;
     for (int i = 0; i < config.initialServers * 100; i++) {
         lb.sendRequest(rg.generateRequest());
     }
     std::cout << "Initial queue generated. Queue size: " << lb.getQueueSize() << std::endl;
     std::cout << std::endl;
+    
+    // Log configuration and starting state
+    logger.logConfiguration(config.initialServers, config.maxServers, config.simulationLength,
+                           config.requestProcessingMin, config.requestProcessingMax, lb.getQueueSize());
 
     // start simulation and tick until simulation length is reached
     int elapsedTime = 0;
     int nextRequestTime = delayDist(rng); // schedule first new request
 
+    ConsoleColor::setColor(ConsoleColor::YELLOW);
     std::cout << "Running simulation..." << std::endl;
+    ConsoleColor::reset();
+    std::cout << std::endl;
 
     while (elapsedTime < config.simulationLength) {
         lb.tick();
@@ -129,8 +156,27 @@ int main(int argc, char const *argv[])
     }
 
     std::cout << std::endl;
+    ConsoleColor::setColor(ConsoleColor::MAGENTA);
     std::cout << "Simulation complete!" << std::endl;
+    ConsoleColor::reset();
     std::cout << "Final queue size: " << lb.getQueueSize() << std::endl;
+    std::cout << "Final server count: " << lb.getServerCount() << std::endl;
+    
+    if (lb.getBlockedRequests() > 0) {
+        ConsoleColor::setColor(ConsoleColor::RED);
+        std::cout << "Firewall blocked requests: " << lb.getBlockedRequests() << std::endl;
+        ConsoleColor::reset();
+    }
+    
+    std::cout << std::endl;
+    
+    // Write summary to log
+    logger.logSummary(config.simulationLength, lb.getServerCount(), lb.getQueueSize(), 
+                      lb.getScalingEvents(), lb.getBlockedRequests());
+    
+    ConsoleColor::setColor(ConsoleColor::CYAN);
+    std::cout << "Log file written to: simulation.log" << std::endl;
+    ConsoleColor::reset();
 
     return 0;
 }

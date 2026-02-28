@@ -1,10 +1,18 @@
+/**
+ * @file LoadBalancer.cpp
+ * @brief Implementation of LoadBalancer class
+ * @date February 2026
+ */
+
 #include "LoadBalancer.h"
+#include "Colors.h"
 #include <unordered_set>
 #include <iostream>
 #include <sstream>
 
-LoadBalancer::LoadBalancer(const SimulationConfig& config, int numServers)
-    : config(config), firewall(std::unordered_set<std::string>()), elapsedTime(0), lastServerAdjustment(0) {
+LoadBalancer::LoadBalancer(const SimulationConfig& config, int numServers, Logger* logger)
+    : config(config), firewall(std::unordered_set<std::string>()), elapsedTime(0), 
+      lastServerAdjustment(0), logger(logger), scalingUpEvents(0), scalingDownEvents(0), blockedRequests(0) {
     // parse blocked IPs from config
     if (!config.blockedIPs.empty()) {
         std::unordered_set<std::string> blockedIPSet;
@@ -32,11 +40,19 @@ int LoadBalancer::getQueueSize() {
 }
 
 void LoadBalancer::sendRequest(const Request& r) {
-    // check if IP is blocked by firewall
+    // Check if IP is blocked by firewall
     if (!firewall.isBlocked(r.inIP)) {
         requestQueue.push(r);
+    } else {
+        // Request blocked by firewall
+        blockedRequests++;
+        if (logger && blockedRequests % 100 == 0) {
+            // Log every 100th blocked request to avoid spam
+            std::stringstream ss;
+            ss << "Firewall: Blocked " << blockedRequests << " requests so far (latest: " << r.inIP << ")";
+            logger->log(ss.str());
+        }
     }
-    // if blocked, silently drop the request
 }
 
 void LoadBalancer::tick() {
@@ -63,15 +79,25 @@ void LoadBalancer::tick() {
         if (queueSize > config.queueHighThreshold * currentServers && currentServers < config.maxServers) {
             addServer();
             lastServerAdjustment = elapsedTime;
-            std::cout << "[" << elapsedTime << "] Scaling UP: Added server (now " << servers.size() << " servers, queue: " << queueSize << ")" << std::endl;
+            scalingUpEvents++;
+            if (logger) {
+                ConsoleColor::setColor(ConsoleColor::GREEN);
+                logger->logScalingUp(elapsedTime, servers.size(), queueSize);
+                ConsoleColor::reset();
+            }
         }
-        // scale down if queue is too small (but keep at least 1 server)
+        // Scale down if queue is too small (but keep at least 1 server)
         else if (queueSize < config.queueLowThreshold * currentServers && currentServers > 1) {
-            // only remove if the server is idle
+            // Only remove if the server is idle
             if (servers.back().isIdle()) {
                 removeServer();
                 lastServerAdjustment = elapsedTime;
-                std::cout << "[" << elapsedTime << "] Scaling DOWN: Removed server (now " << servers.size() << " servers, queue: " << queueSize << ")" << std::endl;
+                scalingDownEvents++;
+                if (logger) {
+                    ConsoleColor::setColor(ConsoleColor::RED);
+                    logger->logScalingDown(elapsedTime, servers.size(), queueSize);
+                    ConsoleColor::reset();
+                }
             }
         }
     }
@@ -83,6 +109,18 @@ Request LoadBalancer::getNextRequest() {
     Request r = requestQueue.front();
     requestQueue.pop();
     return r;
+}
+
+int LoadBalancer::getBlockedRequests() const {
+    return blockedRequests;
+}
+
+int LoadBalancer::getServerCount() const {
+    return servers.size();
+}
+
+int LoadBalancer::getScalingEvents() const {
+    return scalingUpEvents + scalingDownEvents;
 }
 
 void LoadBalancer::addServer() {

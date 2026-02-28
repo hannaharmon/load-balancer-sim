@@ -1,0 +1,24 @@
+# Firewall Stress Test Configuration
+# Tests various CIDR ranges and exact IP blocking
+# High volume to see blocked requests in action
+
+# Simulation parameters
+initialServers=5
+maxServers=20
+simulationLength=5000
+
+# Request generation settings (high frequency)
+seed=999
+requestDelayMin=1
+requestDelayMax=3
+requestProcessingMin=10
+requestProcessingMax=50
+
+# Server scaling settings
+queueLowThreshold=50
+queueHighThreshold=80
+serverAdjustmentDelay=10
+
+# Firewall settings - comprehensive blocking examples
+# Blocks: all 10.x.x.x, 172.16.0.0-172.16.255.255, and specific IPs
+blockedIPs=10.0.0.0/8,172.16.0.0/16,192.168.1.0/24,203.0.113.42,198.51.100.100

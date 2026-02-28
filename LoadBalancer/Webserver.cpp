@@ -1,3 +1,9 @@
+/**
+ * @file Webserver.cpp
+ * @brief Implementation of Webserver class
+ * @date February 2026
+ */
+
 #include "Webserver.h"
 #include <iostream>
 

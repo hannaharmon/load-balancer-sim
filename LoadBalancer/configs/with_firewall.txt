@@ -18,5 +18,5 @@ queueLowThreshold=50
 queueHighThreshold=80
 serverAdjustmentDelay=10
 
-# Firewall settings
-blockedIPs=192.168.1.100,10.0.0.50,172.16.0.0/16,203.0.113.0/24
+# Firewall settings - mix of exact IPs and CIDR ranges
+blockedIPs=192.168.1.100,10.0.0.0/8,172.16.0.0/16,203.0.113.50

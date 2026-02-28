@@ -47,6 +47,15 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 
+# Log files
+*.log
+logs/
+
+# Documentation
+docs/
+html/
+latex/
+
 # OS files
 .DS_Store
 Thumbs.db

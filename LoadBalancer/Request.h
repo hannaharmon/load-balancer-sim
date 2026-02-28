@@ -1,43 +1,65 @@
+/**
+ * @file Request.h
+ * @brief Core data structures for the load balancer simulation
+ * @date February 2026
+ */
+
 #ifndef REQUEST_H
 #define REQUEST_H
 
 #include <string>
 
-// Enumeration for job types
+/**
+ * @enum JobType
+ * @brief Enumeration for categorizing request types
+ */
 enum class JobType {
-    Processing,
-    Streaming
+    Processing,  /**< CPU-intensive processing job */
+    Streaming    /**< Data streaming job */
 };
 
-// Configuration struct for simulation
+/**
+ * @struct SimulationConfig
+ * @brief Configuration parameters for the load balancer simulation
+ * 
+ * Contains all adjustable parameters loaded from configuration files.
+ * Time values are measured in clock cycles (integer units).
+ */
 struct SimulationConfig {
-    int initialServers;       // Starting number of servers
-    int maxServers;           // Maximum servers allowed
-    int simulationLength;
+    int initialServers;       /**< Starting number of web servers */
+    int maxServers;           /**< Maximum capacity limit for servers */
+    int simulationLength;     /**< Total clock cycles to simulate */
     
-    // Request generation settings
-    int seed;
-    int requestDelayMin;      // Min clock cycles between new requests
-    int requestDelayMax;      // Max clock cycles between new requests
-    int requestProcessingMin; // Min clock cycles to process a request
-    int requestProcessingMax; // Max clock cycles to process a request
+    int seed;                 /**< Random number generator seed for reproducibility */
+    int requestDelayMin;      /**< Minimum clock cycles between new request arrivals */
+    int requestDelayMax;      /**< Maximum clock cycles between new request arrivals */
+    int requestProcessingMin; /**< Minimum clock cycles to process a request */
+    int requestProcessingMax; /**< Maximum clock cycles to process a request */
     
-    // Server scaling settings
-    int queueLowThreshold;    // Scale down if queue < this * numServers
-    int queueHighThreshold;   // Scale up if queue > this * numServers
-    int serverAdjustmentDelay; // Clock cycles to wait between server adjustments
+    int queueLowThreshold;    /**< Scale down if queue < (this × numServers) */
+    int queueHighThreshold;   /**< Scale up if queue > (this × numServers) */
+    int serverAdjustmentDelay; /**< Clock cycles cooldown between scaling events */
     
-    // Firewall settings (optional)
-    std::string blockedIPs; // Comma-separated list of blocked IPs (empty = no blocking)
+    std::string blockedIPs;   /**< Comma-separated blocked IPs/CIDR ranges for firewall */
 };
 
-// Request struct
+/**
+ * @struct Request
+ * @brief Represents a single client request to be processed
+ */
 struct Request {
-    std::string inIP;
-    std::string outIP;
-    int time;
-    JobType jobType;
+    std::string inIP;    /**< Client IP address (dotted decimal notation) */
+    std::string outIP;   /**< Server IP address responding to request */
+    int time;            /**< Processing time required (clock cycles) */
+    JobType jobType;     /**< Type of job (Processing or Streaming) */
     
+    /**
+     * @brief Constructor for Request
+     * @param inIP Client IP address
+     * @param outIP Server IP address
+     * @param time Processing time in clock cycles
+     * @param jobType Type of request job
+     */
     Request(const std::string& inIP, const std::string& outIP, int time, JobType jobType);
 };
 

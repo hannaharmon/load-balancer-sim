@@ -1,0 +1,24 @@
+# DoS Attack Simulation
+# Simulates a distributed denial of service attack from specific IP ranges
+# Tests firewall blocking effectiveness under attack conditions
+
+# Simulation parameters
+initialServers=10
+maxServers=50
+simulationLength=10000
+
+# Request generation settings (attack-level traffic)
+seed=666
+requestDelayMin=1
+requestDelayMax=2
+requestProcessingMin=20
+requestProcessingMax=80
+
+# Server scaling settings
+queueLowThreshold=50
+queueHighThreshold=80
+serverAdjustmentDelay=5
+
+# Firewall settings - block known attack sources
+# Blocks common private ranges and suspicious networks
+blockedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16

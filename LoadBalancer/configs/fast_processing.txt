@@ -1,0 +1,23 @@
+# Fast Processing Scenario
+# Quick request processing with steady traffic
+# Tests efficient queue management and rapid turnaround
+
+# Simulation parameters
+initialServers=10
+maxServers=15
+simulationLength=15000
+
+# Request generation settings (moderate arrival rate, fast processing)
+seed=555
+requestDelayMin=3
+requestDelayMax=7
+requestProcessingMin=2
+requestProcessingMax=10
+
+# Server scaling settings
+queueLowThreshold=50
+queueHighThreshold=80
+serverAdjustmentDelay=12
+
+# Firewall settings
+blockedIPs=

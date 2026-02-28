@@ -1,0 +1,22 @@
+# Default Load Balancer Configuration
+# Balanced settings for typical testing
+
+# Simulation parameters
+initialServers=10
+maxServers=50
+simulationLength=10000
+
+# Request generation settings
+seed=42
+requestDelayMin=2
+requestDelayMax=6
+requestProcessingMin=10
+requestProcessingMax=100
+
+# Server scaling settings
+queueLowThreshold=50
+queueHighThreshold=80
+serverAdjustmentDelay=10
+
+# Firewall settings (optional - comma-separated list, leave empty for no blocking)
+# blockedIPs=192.168.1.100,10.0.0.50,172.16.0.0/16

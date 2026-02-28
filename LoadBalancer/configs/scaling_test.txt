@@ -1,0 +1,23 @@
+# Scaling Test Scenario
+# Aggressive thresholds to test dynamic server addition/removal
+# Tests load balancer's ability to scale servers up and down
+
+# Simulation parameters
+initialServers=5
+maxServers=100
+simulationLength=25000
+
+# Request generation settings
+seed=321
+requestDelayMin=2
+requestDelayMax=5
+requestProcessingMin=20
+requestProcessingMax=80
+
+# Server scaling settings (tight thresholds for frequent scaling)
+queueLowThreshold=30
+queueHighThreshold=60
+serverAdjustmentDelay=5
+
+# Firewall settings
+blockedIPs=

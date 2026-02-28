@@ -1,0 +1,23 @@
+# High Load Scenario
+# Stress test with many incoming requests and longer processing times
+# Tests how system handles high traffic volume
+
+# Simulation parameters
+initialServers=10
+maxServers=150
+simulationLength=50000
+
+# Request generation settings (requests arrive very frequently)
+seed=100
+requestDelayMin=1
+requestDelayMax=2
+requestProcessingMin=50
+requestProcessingMax=200
+
+# Server scaling settings
+queueLowThreshold=50
+queueHighThreshold=80
+serverAdjustmentDelay=15
+
+# Firewall settings
+blockedIPs=

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Balancer System Design</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23FFC107'/></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Section */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-width: 200px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #FFC107;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .course-info {
+            font-size: 0.9em;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Main Content Sections */
+        .content-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #FFC107;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #FFC107;
+            padding-bottom: 10px;
+        }
+
+        /* UML Diagram Section */
+        .uml-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .uml-diagram {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .uml-diagram:hover {
+            transform: scale(1.02);
+        }
+
+        .zoom-hint {
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Description Section */
+        .description-section h3 {
+            font-size: 1.5em;
+            color: #1a1a1a;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .description-section p {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .system-components {
+            background: #f8f9fa;
+            border-left: 4px solid #FFC107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .component {
+            margin-bottom: 15px;
+        }
+
+        .component-name {
+            font-weight: bold;
+            color: #FFC107;
+            font-size: 1.1em;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        /* Modal for zoomed diagram */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 95%;
+            max-height: 95%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            header {
+                padding: 25px;
+            }
+
+            .logo {
+                max-width: 150px;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Branding -->
+        <header class="fade-in-up">
+            <div class="logo-container">
+                <img src="road_logo.png" alt="Personal Brand Logo" class="logo">
+            </div>
+            <h1>Load Balancer System Design</h1>
+            <p class="subtitle">Cloud Computing Project 3</p>
+            <p class="course-info">Hanna Harmon</p>
+        </header>
+
+        <!-- UML Diagram Section -->
+        <section class="content-section fade-in-up">
+            <h2>System Architecture Diagram</h2>
+            <div class="uml-container">
+                <img src="LoadBalancerUML.png" alt="Load Balancer UML Diagram" class="uml-diagram" id="umlImage">
+                <p class="zoom-hint">Click on the diagram to view in full size</p>
+            </div>
+        </section>
+
+        <!-- System Description Section -->
+        <section class="content-section description-section fade-in-up">
+            <h2>System Design Overview</h2>
+            
+            <p>
+                This system simulates a load balancer distributing web requests to multiple web servers over a set number of clock cycles.
+            </p>
+
+            <div class="system-components">
+                <div class="component">
+                    <span class="component-name">LoadBalancer</span> - The central controller that maintains a queue of Request objects and a dynamic collection of Webserver instances. Each clock cycle, the load balancer assigns queued requests to idle servers and advances the simulation time.
+                </div>
+
+                <div class="component">
+                    <span class="component-name">RequestGenerator</span> - Produces random IP addresses, processing times, and job types to simulate incoming traffic to the system.
+                </div>
+
+                <div class="component">
+                    <span class="component-name">Firewall</span> - Filters incoming requests by blocking specific IP addresses before they are added to the queue, providing security at the entry point.
+                </div>
+
+                <div class="component">
+                    <span class="component-name">SimulationConfig</span> - A struct that stores configurable parameters such as maximum servers, request delay ranges, and total simulation length. This allows the system to be easily modified without changing internal logic.
+                </div>
+
+                <div class="component">
+                    <span class="component-name">Webserver</span> - Processes one request at a time and requests a new job from the load balancer when it becomes idle.
+                </div>
+
+                <div class="component">
+                    <span class="component-name">Request</span> - Represents individual web requests with properties including IP address, output identifier, processing time, and job type.
+                </div>
+            </div>
+
+            <h3>Dynamic Scaling Capability</h3>
+            <p>
+                The system dynamically scales the number of web servers based on queue size thresholds. If the queue exceeds a defined upper bound, a server is added to handle the increased load. If it drops below a lower bound, a server is removed after a cooldown period, optimizing resource utilization.
+            </p>
+
+            <h3>Workflow</h3>
+            <p>
+                Each Webserver processes one request at a time and requests a new job from the load balancer when it becomes idle. This ensures efficient distribution of work across all available servers while maintaining optimal performance during varying load conditions.
+            </p>
+        </section>
+
+    </div>
+
+    <!-- Modal for zoomed UML diagram -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        // Modal functionality for zooming UML diagram
+        const modal = document.getElementById('imageModal');
+        const img = document.getElementById('umlImage');
+        const modalImg = document.getElementById('modalImage');
+        const closeBtn = document.getElementsByClassName('close')[0];
+
+        // Open modal when clicking on UML diagram
+        img.onclick = function() {
+            modal.style.display = 'block';
+            modalImg.src = this.src;
+        }
+
+        // Close modal when clicking the X
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside the image
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'block') {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Add scroll animation to sections
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.content-section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

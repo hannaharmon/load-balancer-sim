@@ -1,0 +1,23 @@
+# Minimal Configuration
+# Lightweight setup for quick testing and debugging
+# Short simulation with few servers
+
+# Simulation parameters
+initialServers=3
+maxServers=10
+simulationLength=1000
+
+# Request generation settings (slower request rate)
+seed=1
+requestDelayMin=5
+requestDelayMax=10
+requestProcessingMin=5
+requestProcessingMax=20
+
+# Server scaling settings
+queueLowThreshold=50
+queueHighThreshold=80
+serverAdjustmentDelay=5
+
+# Firewall settings
+blockedIPs=

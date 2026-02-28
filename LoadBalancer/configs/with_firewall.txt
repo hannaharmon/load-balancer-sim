@@ -1,0 +1,22 @@
+# Configuration with Firewall Enabled
+# Demonstrates IP blocking functionality
+
+# Simulation parameters
+initialServers=10
+maxServers=30
+simulationLength=15000
+
+# Request generation settings
+seed=777
+requestDelayMin=2
+requestDelayMax=5
+requestProcessingMin=20
+requestProcessingMax=80
+
+# Server scaling settings
+queueLowThreshold=50
+queueHighThreshold=80
+serverAdjustmentDelay=10
+
+# Firewall settings
+blockedIPs=192.168.1.100,10.0.0.50,172.16.0.0/16,203.0.113.0/24

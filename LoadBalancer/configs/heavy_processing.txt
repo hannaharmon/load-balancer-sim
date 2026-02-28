@@ -1,0 +1,23 @@
+# Heavy Processing Scenario
+# Long-running requests that tie up servers
+# Tests system under sustained high compute load
+
+# Simulation parameters
+initialServers=15
+maxServers=80
+simulationLength=30000
+
+# Request generation settings (requests arrive moderately, take long to process)
+seed=999
+requestDelayMin=4
+requestDelayMax=8
+requestProcessingMin=100
+requestProcessingMax=300
+
+# Server scaling settings (more patient with long queues)
+queueLowThreshold=50
+queueHighThreshold=100
+serverAdjustmentDelay=20
+
+# Firewall settings
+blockedIPs=

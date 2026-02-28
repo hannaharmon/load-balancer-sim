@@ -1,0 +1,23 @@
+# Bursty Traffic Scenario
+# Simulates inconsistent traffic patterns
+# Wide range in request delays and processing times
+
+# Simulation parameters
+initialServers=10
+maxServers=40
+simulationLength=20000
+
+# Request generation settings (highly variable arrival times)
+seed=789
+requestDelayMin=1
+requestDelayMax=20
+requestProcessingMin=5
+requestProcessingMax=150
+
+# Server scaling settings (more aggressive scaling)
+queueLowThreshold=40
+queueHighThreshold=90
+serverAdjustmentDelay=8
+
+# Firewall settings
+blockedIPs=
